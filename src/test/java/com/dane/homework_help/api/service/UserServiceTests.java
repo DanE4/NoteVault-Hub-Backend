@@ -67,12 +67,12 @@ public class UserServiceTests {
                 .role(Role.USER)
                 .build();
 
-        userDTO = UserDTO.builder()
-                .email("random@gmail.com")
-                .password("$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12")
-                .username("random")
-                .role(Role.ADMIN)
-                .build();
+        userDTO = new UserDTO(
+                1,
+                "random",
+                "random@gmail.com",
+                "$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12",
+                Role.ADMIN);
 
 
         mockedUsers = new ArrayList<>();

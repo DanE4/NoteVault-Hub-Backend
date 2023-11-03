@@ -6,6 +6,7 @@ import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.exception.UnauthorizedException;
 import com.dane.homework_help.exception.UserNotFoundException;
+import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-@Service
 @Slf4j
+@Service
 public class UserServiceImpl implements UserService {
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public UserServiceImpl(UserRepository userRepository, JwtService jwtService) {
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, JwtService jwtService) {
+        this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
@@ -32,19 +35,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         User user = User.builder()
-                .email(userDTO.getEmail())
-                .password(userDTO.getPassword())
-                .username(userDTO.getUsername())
-                .role(userDTO.getRole())
+                .email(userDTO.email())
+                .password(userDTO.password())
+                .username(userDTO.username())
+                .role(userDTO.role())
                 .build();
         User newUser = userRepository.save(user);
-        return UserDTO.builder()
-                .id(newUser.getId())
-                .email(newUser.getEmail())
-                .password(newUser.getPassword())
-                .username(newUser.getUsername())
-                .role(newUser.getRole())
-                .build();
+        return new UserDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
+                newUser.getPassword(), newUser.getRole());
     }
 
     /*
@@ -55,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
             User user = userRepository.findById(id)
                     .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + "not be found"));
-            return mapToDto(user);
+            return userDTOMapper.apply(user);
         }*/
     @Override
     public UserDTO getUserById(int id) {
@@ -78,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
-        return mapToDto(user);
+        return userMapper.mapToDto(user);
     }
 
 
@@ -89,14 +87,14 @@ public class UserServiceImpl implements UserService {
         this.authorize(id, extractedUser);
         var user = userRepository.findById(id).orElseThrow();
 
-        if (userDTO.getPassword() != null) {
-            user.setPassword(userDTO.getPassword());
+        if (userDTO.password() != null) {
+            user.setPassword(userDTO.password());
         }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
+        if (userDTO.email() != null) {
+            user.setEmail(userDTO.email());
         }
-        if (userDTO.getRole() != null) {
-            user.setRole(userDTO.getRole());
+        if (userDTO.role() != null) {
+            user.setRole(userDTO.role());
         }
 
         jwtService.revokeAllUserTokens(user);
@@ -104,10 +102,9 @@ public class UserServiceImpl implements UserService {
                 (extractedUser.getAuthorities()
                         .stream()
                         .anyMatch(a -> a.toString().equals("ADMIN")) && id == extractedUser.getId())) {
-
             return Response.builder()
                     .data(Map.of(
-                            "user", mapToDto(userRepository.save(user)),
+                            "user", userMapper.mapToDto(userRepository.save(user)),
                             "accessToken", jwtService.generateToken(user),
                             "refreshToken", jwtService.generateRefreshToken(user)
                     ))
@@ -115,7 +112,7 @@ public class UserServiceImpl implements UserService {
         }
         return Response.builder()
                 .data(Map.of(
-                        "user", mapToDto(userRepository.save(user))
+                        "user", userMapper.mapToDto(userRepository.save(user))
                 ))
                 .build();
     }
@@ -130,27 +127,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(this::mapToDto).toList();
-    }
-
-    private UserDTO mapToDto(User user) {
-        return UserDTO.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .username(user.getUsername())
-                .role(user.getRole())
-                .build();
-    }
-
-    private User mapToEntity(UserDTO userDTO) {
-        return User.builder()
-                .id(userDTO.getId())
-                .email(userDTO.getEmail())
-                .password(userDTO.getPassword())
-                .username(userDTO.getUsername())
-                .role(userDTO.getRole())
-                .build();
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::mapToDto)
+                .toList();
     }
 
     public void authorize(int id, User extractedUser) {
