@@ -4,8 +4,8 @@ import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.exception.MissingJwtException;
 import com.dane.homework_help.exception.UnauthorizedException;
-import com.dane.homework_help.service.UserService;
 import com.dane.homework_help.repository.UserRepository;
+import com.dane.homework_help.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,7 +63,7 @@ public class UserController {
     public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") Integer id, HttpServletRequest request) {
         try {
             return ResponseEntity.ok()
-                    .body(Response.builder().data(userService.getUserById(id, extractJwtFromReqest(request))).build());
+                    .body(Response.builder().data(userService.getUserById(id)).build());
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (MissingJwtException e) {

@@ -15,8 +15,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,23 +114,43 @@ public class UserServiceTests {
 
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getUserById_AuthorizedUser_ShouldReturnUserDTO() {
-        // Mock the behavior of JwtService to return a User when getUserByJwt is called with a valid JWT
-        when(jwtService.getUserByJwt(jwt)).thenReturn(userWithAdminRole);
         // Mock the behavior of UserRepository to return a User when findById is called with userId
+        when(userRepository.findByUsername(userWithAdminRole.getEmail())).thenReturn(userWithAdminRole);
         when(userRepository.findById(userId)).thenReturn(Optional.of(userWithAdminRole));
+
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(userWithAdminRole.getUsername())
+                .password(userWithAdminRole.getPassword())
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority(userWithAdminRole.getRole().name())))
+                .build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "password");
+
+        // Set the authentication context
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         // Act
-        UserDTO result = userService.getUserById(userId, jwt);
+        UserDTO result = userService.getUserById(userId);
+
         // Assert
         Assertions.assertThat(result).isNotNull();
     }
 
+
     @Test
     public void getUserById_UnauthorizedUser_ShouldReturnUnauthorizedException() {
         //Act
-        when(jwtService.getUserByJwt(jwt)).thenReturn(userWithUserRole);
+        when(userRepository.findByUsername(userWithUserRole.getEmail())).thenReturn(userWithUserRole);
+        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
+                .username(userWithUserRole.getUsername())
+                .password(userWithUserRole.getPassword())
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority(userWithUserRole.getRole().name())))
+                .build();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "password");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         // Assert
-        Assertions.assertThatThrownBy(() -> userService.getUserById(userId, jwt))
+        Assertions.assertThatThrownBy(() -> userService.getUserById(userId + 1))
                 .isInstanceOf(UnauthorizedException.class);
     }
     //updateUser

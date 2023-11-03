@@ -6,9 +6,12 @@ import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.exception.UnauthorizedException;
 import com.dane.homework_help.exception.UserNotFoundException;
-import com.dane.homework_help.service.UserService;
 import com.dane.homework_help.repository.UserRepository;
+import com.dane.homework_help.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -44,15 +47,40 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    /*
+        @Override
+        public UserDTO getUserById(int id, String jwt) {
+            var extractedUser = jwtService.getUserByJwt(jwt);
+            this.authorize(id, extractedUser);
+
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + "not be found"));
+            return mapToDto(user);
+        }*/
     @Override
-    public UserDTO getUserById(int id, String jwt) {
-        var extractedUser = jwtService.getUserByJwt(jwt);
-        this.authorize(id, extractedUser);
+    public UserDTO getUserById(int id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+
+        User extractedUser = userRepository.findByUsername(email);
+
+        if (extractedUser == null) {
+            // Handle the case where no user with the given username is found
+            throw new UsernameNotFoundException("User with email " + email + " not found");
+        }
+        if (extractedUser.getId() != id && extractedUser.getAuthorities()
+                .stream()
+                .noneMatch(a -> a.toString().equals("ADMIN"))) {
+            throw new UnauthorizedException("You are not authorized to access this resource");
+        }
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + "not be found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
         return mapToDto(user);
     }
+
 
     @Override
     public Response updateUser(int id, UserDTO userDTO, String jwt) {
