@@ -55,7 +55,7 @@ public class PostServiceImpl implements PostService {
                 .build();
 
 
-        return postMapper.mapToDto(postRepository.save(post));
+        return postMapper.apply(postRepository.save(post));
     }
 
 

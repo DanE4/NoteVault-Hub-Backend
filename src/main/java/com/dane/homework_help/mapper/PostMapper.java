@@ -2,32 +2,15 @@ package com.dane.homework_help.mapper;
 
 import com.dane.homework_help.dto.PostDTO;
 import com.dane.homework_help.entity.Post;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.function.Function;
 
-@Mapper(componentModel = "spring")
-public interface PostMapper {
-    PostDTO mapToDto(Post post);
-
-    List<PostDTO> mapToDtos(List<Post> posts);
-
-    @Mapping(target = "postDto.id", source = "id")
-    @Mapping(target = "postDto.title", source = "title")
-    @Mapping(target = "postDto.content", source = "content")
-    @Mapping(target = "postDto.user", source = "user")
-    @Mapping(target = "postDto.subjects", source = "subjects")
-    @Mapping(target = "postDto.files", source = "files")
-    Post signUpToPost(PostDTO postDto);
-}
-
-/*
 @Service
-public class PostDTOMapper implements Function<Post, PostDTO> {
-    private final UserDTOMapper userDTOMapper;
+public class PostMapper implements Function<Post, PostDTO> {
+    private final UserMapper userDTOMapper;
 
-    public PostDTOMapper(UserDTOMapper userDTOMapper) {
+    public PostMapper(UserMapper userDTOMapper) {
         this.userDTOMapper = userDTOMapper;
     }
 
@@ -48,4 +31,3 @@ public class PostDTOMapper implements Function<Post, PostDTO> {
     }
 
 }
-*/

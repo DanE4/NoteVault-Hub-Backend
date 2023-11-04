@@ -2,11 +2,9 @@ package com.dane.homework_help;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.dane.homework_help.mapper"})
 public class HomeworkApplication {
     public static void main(String[] args) {
         //kill anything on 8080 port

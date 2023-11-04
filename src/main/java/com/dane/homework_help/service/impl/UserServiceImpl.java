@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
-        return userMapper.mapToDto(user);
+        return userMapper.apply(user);
     }
 
 
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
                         .anyMatch(a -> a.toString().equals("ADMIN")) && id == extractedUser.getId())) {
             return Response.builder()
                     .data(Map.of(
-                            "user", userMapper.mapToDto(userRepository.save(user)),
+                            "user", userMapper.apply(userRepository.save(user)),
                             "accessToken", jwtService.generateToken(user),
                             "refreshToken", jwtService.generateRefreshToken(user)
                     ))
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
         }
         return Response.builder()
                 .data(Map.of(
-                        "user", userMapper.mapToDto(userRepository.save(user))
+                        "user", userMapper.apply(userRepository.save(user))
                 ))
                 .build();
     }
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(userMapper::mapToDto)
+                .map(userMapper)
                 .toList();
     }
 

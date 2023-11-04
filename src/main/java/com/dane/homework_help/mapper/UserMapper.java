@@ -2,29 +2,13 @@ package com.dane.homework_help.mapper;
 
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.function.Function;
 
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
-    UserDTO mapToDto(User user);
-
-    List<UserDTO> mapToDtos(List<User> users);
-
-    @Mapping(target = "userDto.id", source = "id")
-    @Mapping(target = "userDto.username", source = "username")
-    @Mapping(target = "userDto.email", source = "email")
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    User signUpToUser(UserDTO userDto);
-}
-
-/*
 @Service
-public class UserDTOMapper implements Function<User, UserDTO> {
+public class UserMapper implements Function<User, UserDTO> {
     @Override
     public UserDTO apply(User user) {
         return new UserDTO(user.getId(), user.getUsername(), user.getEmail(),
@@ -41,4 +25,3 @@ public class UserDTOMapper implements Function<User, UserDTO> {
                 .build();
     }
 }
-*/

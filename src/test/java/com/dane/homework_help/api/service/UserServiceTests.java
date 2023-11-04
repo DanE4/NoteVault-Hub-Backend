@@ -5,6 +5,7 @@ import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.exception.UnauthorizedException;
+import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.impl.UserServiceImpl;
 import org.assertj.core.api.Assertions;
@@ -42,6 +43,7 @@ public class UserServiceTests {
 
     @Mock
     private JwtServiceImpl jwtService;
+    private UserMapper userMapper;
 
     private User userWithAdminRole;
     private User userWithUserRole;
