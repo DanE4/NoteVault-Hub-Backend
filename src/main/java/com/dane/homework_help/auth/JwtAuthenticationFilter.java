@@ -30,9 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        log.info("DOFILTERINTERNAL");
         if (request.getServletPath().contains("/api/auth")) {
-            log.info("DOFILTERINTERNAL2");
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,14 +43,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractEmail(jwt);
-        log.info("Doiflter3");
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            log.info("Doiflter4");
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            log.info("Doiflter5");
             if (jwtService.validateToken(jwt, userDetails)) {
-                log.info("Doiflter6");
-
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -60,10 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                log.info("Dofilter7");
             }
         }
-        log.info("Dofilter8");
         filterChain.doFilter(request, response);
     }
 }

@@ -8,8 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,7 +32,6 @@ public class AuthenticationController {
     //change password
     //change email
     //using bcrypt, jwt, and spring security, and mail sending
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AuthenticationService authenticationService;
 
     @PostMapping("/authenticate")
@@ -58,9 +55,9 @@ public class AuthenticationController {
     )
     @PostMapping("/register")
     public ResponseEntity<Response> register(@RequestBody RegisterRequest request) {
-        logger.warn("register");
+        log.warn("register");
         var response = authenticationService.register(request);
-        logger.warn(response.toString());
+        log.warn(response.toString());
         if (response.response == null) {
             return ResponseEntity.ok(response);
         } else if (response.response.equals("Email already exists")) {

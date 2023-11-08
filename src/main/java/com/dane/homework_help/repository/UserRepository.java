@@ -7,9 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-
 public interface UserRepository extends JpaRepository<User, Integer> {
-
     //sql injection safe query
     @Query("SELECT u FROM User u WHERE u.username = :username")
     User findByUsername(@Param("username") String username);
@@ -22,5 +20,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAll();
 
     String sqlQuery = "SELECT * FROM products WHERE name = '" + "name" + "'";
-
 }

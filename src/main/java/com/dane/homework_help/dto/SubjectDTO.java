@@ -2,11 +2,12 @@ package com.dane.homework_help.dto;
 
 import com.dane.homework_help.entity.PostToSubject;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * DTO for {@link com.dane.homework_help.entity.Subject}
  */
-public record SubjectDTO(UUID id, String name, String description, List<PostToSubject> posts) {
+public record SubjectDTO(UUID id, String name, String description, List<PostToSubject> posts) implements Serializable {
 }

@@ -10,6 +10,8 @@ import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,11 +27,14 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, JwtService jwtService) {
+    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, JwtService jwtService,
+                           RedisTemplate<String, Object> redisTemplate) {
         this.userMapper = userMapper;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -55,6 +60,8 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + "not be found"));
             return userDTOMapper.apply(user);
         }*/
+
+
     @Override
     public UserDTO getUserById(int id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -62,10 +69,9 @@ public class UserServiceImpl implements UserService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
 
-        User extractedUser = userRepository.findByUsername(email);
-
+        User extractedUser = userRepository.findByEmail(email);
+        
         if (extractedUser == null) {
-            // Handle the case where no user with the given username is found
             throw new UsernameNotFoundException("User with email " + email + " not found");
         }
         if (extractedUser.getId() != id && extractedUser.getAuthorities()
@@ -74,13 +80,24 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("You are not authorized to access this resource");
         }
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
-        return userMapper.apply(user);
+        UserDTO user = (UserDTO) redisTemplate.opsForValue().get("users::" + id);
+
+        if (user == null) {
+            log.info("Fetching user from DB");
+            User userFromDb = userRepository.findById(id)
+                    .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
+            user = userMapper.apply(userFromDb);
+            redisTemplate.opsForValue().set("users::" + id, user);
+        } else {
+            log.info("User fetched from cache");
+        }
+
+        return user;
     }
 
 
     @Override
+    @CachePut(value = "users", key = "#id")
     public Response updateUser(int id, UserDTO userDTO, String jwt) {
 
         User extractedUser = jwtService.getUserByJwt(jwt);

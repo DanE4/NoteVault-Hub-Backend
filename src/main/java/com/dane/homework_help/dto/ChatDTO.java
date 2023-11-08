@@ -1,5 +1,6 @@
 package com.dane.homework_help.dto;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,5 +9,5 @@ import java.util.UUID;
  */
 
 public record ChatDTO(UUID id, List<ChatToUserDTO> users, List<GroupToChatDTO> groups, List<MessageDTO> messages,
-                      List<FileDTO> files) {
+                      List<FileDTO> files) implements Serializable {
 }
