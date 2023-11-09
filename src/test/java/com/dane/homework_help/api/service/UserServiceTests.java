@@ -1,6 +1,5 @@
 package com.dane.homework_help.api.service;
 
-import com.dane.homework_help.auth.service.impl.JwtServiceImpl;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
@@ -16,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,20 +41,21 @@ public class UserServiceTests {
 
     @InjectMocks
     private UserServiceImpl userService;
-
-    @Mock
-    private JwtServiceImpl jwtService;
-    private UserMapper userMapper;
-
     private User userWithAdminRole;
     private User userWithUserRole;
     private UserDTO userDTO;
     private List<User> mockedUsers;
     private final int userId = 1;
     private final String jwt = "secretToken";
+    @Mock
+    private UserMapper userMapper = new UserMapper();
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
 
     @BeforeEach
-    public void init() {
+    public void setup() {
         //Arrange
         userWithAdminRole = User.builder()
                 .email("random@gmail.com")
@@ -93,7 +95,6 @@ public class UserServiceTests {
 
     }
 
-
     @Test
     public void createUser_ShouldCreateUser() {
         //Act
@@ -119,8 +120,9 @@ public class UserServiceTests {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getUserById_AuthorizedUser_ShouldReturnUserDTO() {
         // Mock the behavior of UserRepository to return a User when findById is called with userId
-        when(userRepository.findByUsername(userWithAdminRole.getEmail())).thenReturn(userWithAdminRole);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(userWithAdminRole));
+        when(userRepository.findByEmail(userWithAdminRole.getEmail())).thenReturn(userWithAdminRole);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("users::" + userId)).thenReturn(userDTO);
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(userWithAdminRole.getUsername())
@@ -143,7 +145,7 @@ public class UserServiceTests {
     @Test
     public void getUserById_UnauthorizedUser_ShouldReturnUnauthorizedException() {
         //Act
-        when(userRepository.findByUsername(userWithUserRole.getEmail())).thenReturn(userWithUserRole);
+        when(userRepository.findByEmail(userWithUserRole.getEmail())).thenReturn(userWithUserRole);
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(userWithUserRole.getUsername())
                 .password(userWithUserRole.getPassword())
@@ -152,7 +154,7 @@ public class UserServiceTests {
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "password");
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // Assert
-        Assertions.assertThatThrownBy(() -> userService.getUserById(userId + 1))
+        Assertions.assertThatThrownBy(() -> userService.getUserById(userId))
                 .isInstanceOf(UnauthorizedException.class);
     }
     //updateUser

@@ -9,6 +9,7 @@ import com.dane.homework_help.exception.UserNotFoundException;
 import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,20 +24,15 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
+
 public class UserServiceImpl implements UserService {
+
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RedisTemplate<String, Object> redisTemplate;
-
-    public UserServiceImpl(UserMapper userMapper, UserRepository userRepository, JwtService jwtService,
-                           RedisTemplate<String, Object> redisTemplate) {
-        this.userMapper = userMapper;
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-        this.redisTemplate = redisTemplate;
-    }
-
+    
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         User user = User.builder()
@@ -70,7 +66,7 @@ public class UserServiceImpl implements UserService {
         String email = userDetails.getUsername();
 
         User extractedUser = userRepository.findByEmail(email);
-        
+
         if (extractedUser == null) {
             throw new UsernameNotFoundException("User with email " + email + " not found");
         }
