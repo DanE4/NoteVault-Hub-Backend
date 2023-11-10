@@ -47,13 +47,11 @@ public class PostServiceImpl implements PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-
         Post post = Post.builder()
                 .title(postData.title())
                 .content(postData.content())
                 .user(User.builder().id(((User) userDetails).getId()).build())
                 .build();
-
 
         return postMapper.apply(postRepository.save(post));
     }

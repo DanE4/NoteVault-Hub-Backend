@@ -31,4 +31,20 @@ public class Chat {
 
     @OneToMany(mappedBy = "chat")
     private List<File> files;
+
+    public List<UUID> getChatToUserIds() {
+        return users.stream().map(ChatToUser::getId).toList();
+    }
+
+    public List<UUID> getGroupToChatIds() {
+        return groups.stream().map(GroupToChat::getId).toList();
+    }
+
+    public List<UUID> getMessageIds() {
+        return messages.stream().map(Message::getId).toList();
+    }
+
+    public List<UUID> getFileIds() {
+        return files.stream().map(File::getId).toList();
+    }
 }

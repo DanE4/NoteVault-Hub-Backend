@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RedisTemplate<String, Object> redisTemplate;
-    
+
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         User user = User.builder()
@@ -59,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDTO getUserById(int id) {
+    public UserDTO getUserById(UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -94,7 +95,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @CachePut(value = "users", key = "#id")
-    public Response updateUser(int id, UserDTO userDTO, String jwt) {
+    public Response updateUser(UUID id, UserDTO userDTO, String jwt) {
 
         User extractedUser = jwtService.getUserByJwt(jwt);
         this.authorize(id, extractedUser);
@@ -131,7 +132,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(int id) {
+    public void deleteUserById(UUID id) {
         log.info("delete user by id: " + id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + "not be found"));
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    public void authorize(int id, User extractedUser) {
+    public void authorize(UUID id, User extractedUser) {
         if (id != extractedUser.getId() && extractedUser.getAuthorities()
                 .stream()
                 .noneMatch(a -> a.toString().equals("ADMIN"))) {

@@ -30,7 +30,7 @@ public class UserRepositoryTests {
         User savedUser = userRepository.save(user);
         //Assert
         Assertions.assertThat(savedUser).isNotNull();
-        Assertions.assertThat(savedUser.getId()).isGreaterThan(0);
+        Assertions.assertThat(savedUser.getId()).isNotNull();
     }
 
     @Test

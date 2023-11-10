@@ -24,10 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +42,7 @@ public class UserServiceTests {
     private User userWithUserRole;
     private UserDTO userDTO;
     private List<User> mockedUsers;
-    private final int userId = 1;
+    private final UUID userId = UUID.randomUUID();
     private final String jwt = "secretToken";
     @Mock
     private UserMapper userMapper = new UserMapper();
@@ -58,6 +55,7 @@ public class UserServiceTests {
     public void setup() {
         //Arrange
         userWithAdminRole = User.builder()
+                .id(userId)
                 .email("random@gmail.com")
                 .password("$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12")
                 .username("random")
@@ -72,7 +70,7 @@ public class UserServiceTests {
                 .build();
 
         userDTO = new UserDTO(
-                1,
+                UUID.randomUUID(),
                 "random",
                 "random@gmail.com",
                 "$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12",

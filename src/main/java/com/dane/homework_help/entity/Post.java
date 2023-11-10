@@ -33,4 +33,16 @@ public class Post {
 
     @OneToMany(mappedBy = "post")
     private List<File> files;
+
+    public UUID getUserId() {
+        return user.getId();
+    }
+
+    public List<UUID> getSubjectsIds() {
+        return subjects.stream().map(PostToSubject::getId).toList();
+    }
+
+    public List<UUID> getFilesIds() {
+        return files.stream().map(File::getId).toList();
+    }
 }

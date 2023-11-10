@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/users")
@@ -61,7 +63,7 @@ public class UserController {
     )
     @GetMapping("/{user_id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") Integer id, HttpServletRequest request) {
+    public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") UUID id, HttpServletRequest request) {
         try {
             return ResponseEntity.ok()
                     .body(Response.builder().data(userService.getUserById(id)).build());
@@ -89,7 +91,7 @@ public class UserController {
 
     @PatchMapping("/{user_id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Response> updateUser(@PathVariable(value = "user_id") Integer id,
+    public ResponseEntity<Response> updateUser(@PathVariable(value = "user_id") UUID id,
                                                HttpServletRequest request, @RequestBody UserDTO user) {
         try {
             return ResponseEntity.ok().body(userService.updateUser(id, user, extractJwtFromReqest(request)));
@@ -101,7 +103,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{user_id}")
-    public ResponseEntity<?> deleteUser(@PathVariable(value = "user_id") Integer id) {
+    public ResponseEntity<?> deleteUser(@PathVariable(value = "user_id") UUID id) {
         try {
             userService.deleteUserById(id);
             return ResponseEntity.ok().build();

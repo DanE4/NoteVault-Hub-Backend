@@ -8,6 +8,7 @@ import java.util.UUID;
  * DTO for {@link com.dane.homework_help.entity.Chat}
  */
 
-public record ChatDTO(UUID id, List<ChatToUserDTO> users, List<GroupToChatDTO> groups, List<MessageDTO> messages,
-                      List<FileDTO> files) implements Serializable {
+public record ChatDTO(UUID id, List<UUID> chatToUserIds, List<UUID> groupToChatIds,
+                      List<UUID> messageIds,
+                      List<UUID> fileIds) implements Serializable {
 }
