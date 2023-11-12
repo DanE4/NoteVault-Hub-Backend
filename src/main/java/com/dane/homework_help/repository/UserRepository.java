@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, UUID> {
     //sql injection safe query
     @Query("SELECT u FROM User u WHERE u.username = :username")
     User findByUsername(@Param("username") String username);
@@ -22,6 +22,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findAll();
 
     Optional<User> findById(UUID id);
+
+    void deleteById(UUID id);
+
+    boolean existsById(UUID id);
 
     String sqlQuery = "SELECT * FROM products WHERE name = '" + "name" + "'";
 }

@@ -47,7 +47,6 @@ public class UserRepositoryTests {
     @Test
     public void UserRepository_ExistsByUsername_ShouldReturnTrue() {
         //Arrange
-        //initialized from data.sql
         //Act
         boolean exists = userRepository.existsByUsername("imanadmin");
         //Assert
@@ -69,8 +68,10 @@ public class UserRepositoryTests {
     @Test
     public void UserRepository_UserDelete_ShouldDelete() {
 
-        userRepository.deleteById(1);
+        var users = userRepository.findAll();
+
+        userRepository.deleteById(users.get(0).getId());
         //Assert
-        Assertions.assertThat(userRepository.existsById(1)).isFalse();
+        Assertions.assertThat(userRepository.existsById(users.get(0).getId())).isFalse();
     }
 }

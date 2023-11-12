@@ -1,8 +1,8 @@
 package com.dane.homework_help.auth.service.impl;
 
 import com.dane.homework_help.auth.service.JwtService;
-import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.Token;
+import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.TokenType;
 import com.dane.homework_help.repository.TokenRepository;
 import com.dane.homework_help.repository.UserRepository;
@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
@@ -120,12 +121,13 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public int extractUserId(String jwt) {
-        return extractClaim(jwt, claims -> (Integer) claims.get("id"));
+    public UUID extractUserId(String jwt) {
+        return extractClaim(jwt, claims -> (UUID) claims.get("id"));
     }
 
     @Override
     public User getUserByJwt(String jwt) {
+
         return userRepository.findById(extractUserId(jwt)).orElseThrow();
     }
 

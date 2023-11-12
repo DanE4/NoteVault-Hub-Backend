@@ -1,5 +1,6 @@
 package com.dane.homework_help.service.impl;
 
+import com.dane.homework_help.auth.RegisterRequest;
 import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.auth.service.JwtService;
 import com.dane.homework_help.dto.UserDTO;
@@ -12,6 +13,7 @@ import com.dane.homework_help.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,32 +37,17 @@ public class UserServiceImpl implements UserService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public UserDTO createUser(UserDTO userDTO) {
+    public User createUser(RegisterRequest userDTO) {
         User user = User.builder()
                 .email(userDTO.email())
-                .password(userDTO.password())
                 .username(userDTO.username())
                 .role(userDTO.role())
                 .build();
-        User newUser = userRepository.save(user);
-        return new UserDTO(newUser.getId(), newUser.getUsername(), newUser.getEmail(),
-                newUser.getPassword(), newUser.getRole());
+        return userRepository.save(user);
     }
 
-    /*
-        @Override
-        public UserDTO getUserById(int id, String jwt) {
-            var extractedUser = jwtService.getUserByJwt(jwt);
-            this.authorize(id, extractedUser);
 
-            User user = userRepository.findById(id)
-                    .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + "not be found"));
-            return userDTOMapper.apply(user);
-        }*/
-
-
-    @Override
-    public UserDTO getUserById(UUID id) {
+    public User CheckIfAuthorized(UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -76,22 +63,16 @@ public class UserServiceImpl implements UserService {
                 .noneMatch(a -> a.toString().equals("ADMIN"))) {
             throw new UnauthorizedException("You are not authorized to access this resource");
         }
-
-        UserDTO user = (UserDTO) redisTemplate.opsForValue().get("users::" + id);
-
-        if (user == null) {
-            log.info("Fetching user from DB");
-            User userFromDb = userRepository.findById(id)
-                    .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
-            user = userMapper.apply(userFromDb);
-            redisTemplate.opsForValue().set("users::" + id, user);
-        } else {
-            log.info("User fetched from cache");
-        }
-
-        return user;
+        return extractedUser;
     }
 
+    @Override
+    @Cacheable(value = "users", key = "#id")
+    public User getUserById(UUID id) {
+        CheckIfAuthorized(id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
+    }
 
     @Override
     @CachePut(value = "users", key = "#id")
@@ -101,9 +82,6 @@ public class UserServiceImpl implements UserService {
         this.authorize(id, extractedUser);
         var user = userRepository.findById(id).orElseThrow();
 
-        if (userDTO.password() != null) {
-            user.setPassword(userDTO.password());
-        }
         if (userDTO.email() != null) {
             user.setEmail(userDTO.email());
         }

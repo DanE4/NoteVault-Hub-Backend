@@ -12,7 +12,7 @@ public class UserMapper implements Function<User, UserDTO> {
     @Override
     public UserDTO apply(User user) {
         return new UserDTO(user.getId(), user.getUsername(), user.getEmail(),
-                user.getPassword(), user.getRole());
+                user.getRole());
     }
 
     public User mapToEntity(UserDTO userDTO) {
@@ -20,7 +20,6 @@ public class UserMapper implements Function<User, UserDTO> {
                 .id(userDTO.id())
                 .username(userDTO.username())
                 .email(userDTO.email())
-                .password(userDTO.password())
                 .role(userDTO.role())
                 .build();
     }

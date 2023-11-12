@@ -4,7 +4,7 @@ import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.exception.MissingJwtException;
 import com.dane.homework_help.exception.UnauthorizedException;
-import com.dane.homework_help.repository.UserRepository;
+import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,12 +28,13 @@ public class UserController {
 
     //?why do i need to use this? it's just dependency injection, right?
 
-    private final UserRepository userRepository;
     private final UserService userService;
 
-    public UserController(UserRepository userRepository, UserService userService) {
-        this.userRepository = userRepository;
+    private final UserMapper userMapper;
+
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     public String extractJwtFromReqest(HttpServletRequest request) {
@@ -66,7 +67,7 @@ public class UserController {
     public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") UUID id, HttpServletRequest request) {
         try {
             return ResponseEntity.ok()
-                    .body(Response.builder().data(userService.getUserById(id)).build());
+                    .body(Response.builder().data(userMapper.apply(userService.getUserById(id))).build());
         } catch (UsernameNotFoundException | MissingJwtException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (UnauthorizedException e) {
@@ -74,6 +75,19 @@ public class UserController {
         }
     }
 
+    @Operation(
+            description = "Endpoint for getting all users",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    )
+            }
+    )
     @GetMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> getAllUsers() {
@@ -89,6 +103,23 @@ public class UserController {
     }
      */
 
+    @Operation(
+            description = "Endpoint for updating user",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
     @PatchMapping("/{user_id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> updateUser(@PathVariable(value = "user_id") UUID id,
@@ -102,11 +133,32 @@ public class UserController {
         }
     }
 
+
+    @Operation(
+            description = "Endpoint for deleting user",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200"
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
     @DeleteMapping("/{user_id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public ResponseEntity<?> deleteUser(@PathVariable(value = "user_id") UUID id) {
         try {
             userService.deleteUserById(id);
             return ResponseEntity.ok().build();
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

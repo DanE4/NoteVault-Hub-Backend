@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,10 +40,10 @@ public class Post {
     }
 
     public List<UUID> getSubjectsIds() {
-        return subjects.stream().map(PostToSubject::getId).toList();
+        return subjects == null ? new ArrayList<>() : subjects.stream().map(PostToSubject::getId).toList();
     }
 
     public List<UUID> getFilesIds() {
-        return files.stream().map(File::getId).toList();
+        return files == null ? new ArrayList<>() : files.stream().map(File::getId).toList();
     }
 }

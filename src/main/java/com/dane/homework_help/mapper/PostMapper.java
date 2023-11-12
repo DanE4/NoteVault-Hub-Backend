@@ -8,18 +8,15 @@ import java.util.function.Function;
 
 @Service
 public class PostMapper implements Function<Post, PostDTO> {
-    public final UserMapper userDTOMapper;
-    public final FileMapper fileMapper;
-
-    public PostMapper(UserMapper userDTOMapper, FileMapper fileMapper) {
-        this.userDTOMapper = userDTOMapper;
-        this.fileMapper = fileMapper;
-    }
-
     @Override
     public PostDTO apply(Post post) {
-        return new PostDTO(post.getId(), post.getTitle(), post.getContent(), post.getUserId(),
-                //map all files to DTOs
-                post.getSubjectsIds(), post.getFilesIds());
+        return PostDTO.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .userId(post.getUserId())
+                .subjectIds(post.getSubjectsIds())
+                .fileIds(post.getFilesIds())
+                .build();
     }
 }

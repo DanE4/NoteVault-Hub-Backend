@@ -1,5 +1,6 @@
 package com.dane.homework_help.api.service;
 
+import com.dane.homework_help.auth.RegisterRequest;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
@@ -41,6 +42,7 @@ public class UserServiceTests {
     private User userWithAdminRole;
     private User userWithUserRole;
     private UserDTO userDTO;
+    private RegisterRequest createRequest;
     private List<User> mockedUsers;
     private final UUID userId = UUID.randomUUID();
     private final String jwt = "secretToken";
@@ -69,8 +71,7 @@ public class UserServiceTests {
                 .role(Role.USER)
                 .build();
 
-        userDTO = new UserDTO(
-                UUID.randomUUID(),
+        createRequest = new RegisterRequest(
                 "random",
                 "random@gmail.com",
                 "$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12",
@@ -98,7 +99,7 @@ public class UserServiceTests {
         //Act
         when(userRepository.save(Mockito.any(User.class))).thenReturn(userWithAdminRole);
         //Assert
-        UserDTO savedUser = userService.createUser(userDTO);
+        User savedUser = userService.createUser(createRequest);
         Assertions.assertThat(savedUser).isNotNull();
     }
 
@@ -119,8 +120,8 @@ public class UserServiceTests {
     public void getUserById_AuthorizedUser_ShouldReturnUserDTO() {
         // Mock the behavior of UserRepository to return a User when findById is called with userId
         when(userRepository.findByEmail(userWithAdminRole.getEmail())).thenReturn(userWithAdminRole);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get("users::" + userId)).thenReturn(userDTO);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userWithAdminRole));
+        // Mock the behavior of SecurityContextHolder to return a UserDetails object
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(userWithAdminRole.getUsername())
@@ -133,7 +134,7 @@ public class UserServiceTests {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Act
-        UserDTO result = userService.getUserById(userId);
+        User result = userService.getUserById(userId);
 
         // Assert
         Assertions.assertThat(result).isNotNull();

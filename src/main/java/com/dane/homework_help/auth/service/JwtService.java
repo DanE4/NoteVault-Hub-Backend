@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 public interface JwtService {
@@ -32,7 +33,7 @@ public interface JwtService {
 
     String generateRefreshToken(Map<String, Object> claims, UserDetails userDetails);
 
-    int extractUserId(String jwt);
+    UUID extractUserId(String jwt);
 
     User getUserByJwt(String jwt);
 
