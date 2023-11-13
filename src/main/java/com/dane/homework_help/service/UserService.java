@@ -19,5 +19,5 @@ public interface UserService {
 
     void deleteUserById(UUID id);
 
-    List<UserDTO> getAllUsers();
+    List<User> getAllUsers();
 }

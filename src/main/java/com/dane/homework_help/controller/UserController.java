@@ -91,9 +91,9 @@ public class UserController {
     @GetMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> getAllUsers() {
-        return ResponseEntity.ok().body(Response.builder().data(userService.getAllUsers()).build());
+        return ResponseEntity.ok().body(Response.builder()
+                .data(userService.getAllUsers().stream().map(userMapper).toList()).build());
     }
-
 
     /*
     @PostMapping()

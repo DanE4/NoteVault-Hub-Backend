@@ -24,6 +24,9 @@ public class UserRepositoryTests {
                 .email("random@gmail.com")
                 .password("$2a$12$sTJkWVSZRfAO/CzQC1fsaeXbNc1bQ21RAWTIwnWU70OrUyCXzii12")
                 .username("random")
+                .level(1)
+                .points(0)
+                .school("BGE")
                 .role(Role.ADMIN)
                 .build();
         //Act
@@ -67,9 +70,7 @@ public class UserRepositoryTests {
 
     @Test
     public void UserRepository_UserDelete_ShouldDelete() {
-
         var users = userRepository.findAll();
-
         userRepository.deleteById(users.get(0).getId());
         //Assert
         Assertions.assertThat(userRepository.existsById(users.get(0).getId())).isFalse();

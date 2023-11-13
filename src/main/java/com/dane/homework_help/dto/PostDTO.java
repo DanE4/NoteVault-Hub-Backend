@@ -17,7 +17,6 @@ public record PostDTO(
         String content,
         @Schema(hidden = true)
         UUID userId,
-        @Schema(hidden = true)
         List<UUID> subjectIds,
         @Schema(hidden = true)
         List<UUID> fileIds)

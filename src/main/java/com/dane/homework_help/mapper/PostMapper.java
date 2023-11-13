@@ -15,7 +15,7 @@ public class PostMapper implements Function<Post, PostDTO> {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .userId(post.getUserId())
-                .subjectIds(post.getSubjectsIds())
+                .subjectIds(post.getSubjectIds())
                 .fileIds(post.getFilesIds())
                 .build();
     }

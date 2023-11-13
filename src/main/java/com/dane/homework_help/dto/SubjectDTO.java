@@ -1,6 +1,6 @@
 package com.dane.homework_help.dto;
 
-import com.dane.homework_help.entity.PostToSubject;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,5 +9,16 @@ import java.util.UUID;
 /**
  * DTO for {@link com.dane.homework_help.entity.Subject}
  */
-public record SubjectDTO(UUID id, String name, String description, List<PostToSubject> posts) implements Serializable {
+public record SubjectDTO(
+        @Schema(hidden = true)
+        UUID id,
+
+        @Schema(description = "name", example = "Calculus 2")
+        String name,
+
+        @Schema(description = "description", example = "Best math class")
+        String description,
+
+        @Schema(hidden = true)
+        List<UUID> postsToSubjectIds) implements Serializable {
 }

@@ -1,6 +1,7 @@
 package com.dane.homework_help.service.impl;
 
 import com.dane.homework_help.auth.Response;
+import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.dto.PostDTO;
 import com.dane.homework_help.entity.Post;
 import com.dane.homework_help.entity.PostToSubject;
@@ -14,6 +15,7 @@ import com.dane.homework_help.repository.PostToSubjectRepository;
 import com.dane.homework_help.repository.SubjectRepository;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.PostService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -47,24 +49,16 @@ public class Post {
 }
 
  */
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
-    private final SubjectRepository subjectRepository;
-
-    private PostRepository postRepository;
-    private PostMapper postMapper;
+    private final PostMapper postMapper;
+    private final PostRepository postRepository;
+    private final AuthZService authZService;
     private final UserRepository userRepository;
+    private final SubjectRepository subjectRepository;
     private final PostToSubjectRepository postToSubjectRepository;
-
-    public PostServiceImpl(PostRepository postRepository, PostMapper postMapper, UserRepository userRepository, PostToSubjectRepository postToSubjectRepository,
-                           SubjectRepository subjectRepository) {
-        this.postRepository = postRepository;
-        this.postMapper = postMapper;
-        this.userRepository = userRepository;
-        this.postToSubjectRepository = postToSubjectRepository;
-        this.subjectRepository = subjectRepository;
-    }
 
     @Override
     public PostDTO createPost(PostDTO postData) {
@@ -80,8 +74,25 @@ public class PostServiceImpl implements PostService {
                 .content(postData.content())
                 .user(extractedUser)
                 .build();
+        postRepository.save(post);
+
+        Optional.ofNullable(postData.fileIds()).ifPresent(post::setFilesIds);
+        Optional.ofNullable(postData.subjectIds()).ifPresent(subjectIds -> {
+            post.setSubjectIds(subjectIds);
+            postToSubjectRepository.deleteAllByPostId(post.getId());
+            subjectIds.forEach(subjectId -> {
+                Subject subject = subjectRepository.findById(subjectId)
+                        .orElseThrow(() -> new RecordNotFoundException("Subject with id " + subjectId +
+                                " not found"));
+                PostToSubject postToSubject = PostToSubject.builder()
+                        .post(post)
+                        .subject(subject)
+                        .build();
+                postToSubjectRepository.save(postToSubject);
+            });
+        });
         log.info("Post created");
-        return postMapper.apply(postRepository.save(post));
+        return postMapper.apply(post);
     }
 
 

@@ -2,6 +2,7 @@ package com.dane.homework_help.service.impl;
 
 import com.dane.homework_help.auth.RegisterRequest;
 import com.dane.homework_help.auth.Response;
+import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.auth.service.JwtService;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
@@ -15,9 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +26,13 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final AuthZService authZService;
 
     @Override
     public User createUser(RegisterRequest userDTO) {
@@ -46,30 +44,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-
-    public User CheckIfAuthorized(UUID id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-
-        User extractedUser = userRepository.findByEmail(email);
-
-        if (extractedUser == null) {
-            throw new UsernameNotFoundException("User with email " + email + " not found");
-        }
-        if (extractedUser.getId() != id && extractedUser.getAuthorities()
-                .stream()
-                .noneMatch(a -> a.toString().equals("ADMIN"))) {
-            throw new UnauthorizedException("You are not authorized to access this resource");
-        }
-        return extractedUser;
-    }
-
     @Override
     @Cacheable(value = "users", key = "#id")
     public User getUserById(UUID id) {
-        CheckIfAuthorized(id);
+        authZService.CheckIfAuthorized(id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id " + id + " not found"));
     }
@@ -118,11 +96,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(userMapper)
-                .toList();
+    @Cacheable(value = "users")
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public void authorize(UUID id, User extractedUser) {

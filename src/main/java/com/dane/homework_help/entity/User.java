@@ -35,7 +35,9 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String level;
+    private int level;
+
+    private int points;
 
     private String school;
 

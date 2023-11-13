@@ -1,6 +1,7 @@
 package com.dane.homework_help.api.service;
 
 import com.dane.homework_help.auth.RegisterRequest;
+import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
@@ -52,6 +53,8 @@ public class UserServiceTests {
     private RedisTemplate<String, Object> redisTemplate;
     @Mock
     private ValueOperations<String, Object> valueOperations;
+    @Mock
+    private AuthZService authZService;
 
     @BeforeEach
     public void setup() {
@@ -104,11 +107,11 @@ public class UserServiceTests {
     }
 
     @Test
-    public void getAllUsers_ShouldReturnAllUsersDTOs() {
+    public void getAllUsers_ShouldReturnAllUsers() {
         // Mock the behavior of userRepository.findAll()
         when(userRepository.findAll()).thenReturn(mockedUsers);
         // Call the service method
-        List<UserDTO> userDTOs = userService.getAllUsers();
+        List<User> userDTOs = userService.getAllUsers();
         // Assertions
         assertEquals(mockedUsers.size(), userDTOs.size());
         // Add more assertions to compare the UserDTOs with the mock data
@@ -117,10 +120,10 @@ public class UserServiceTests {
 
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
-    public void getUserById_AuthorizedUser_ShouldReturnUserDTO() {
+    public void getUserById_AuthorizedUser_ShouldReturnUser() {
         // Mock the behavior of UserRepository to return a User when findById is called with userId
-        when(userRepository.findByEmail(userWithAdminRole.getEmail())).thenReturn(userWithAdminRole);
         when(userRepository.findById(userId)).thenReturn(Optional.of(userWithAdminRole));
+        when(authZService.CheckIfAuthorized(userId)).thenReturn(userWithAdminRole);
         // Mock the behavior of SecurityContextHolder to return a UserDetails object
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
@@ -139,23 +142,15 @@ public class UserServiceTests {
         // Assert
         Assertions.assertThat(result).isNotNull();
     }
-
-
+    
     @Test
     public void getUserById_UnauthorizedUser_ShouldReturnUnauthorizedException() {
-        //Act
-        when(userRepository.findByEmail(userWithUserRole.getEmail())).thenReturn(userWithUserRole);
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(userWithUserRole.getUsername())
-                .password(userWithUserRole.getPassword())
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority(userWithUserRole.getRole().name())))
-                .build();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "password");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        // Assert
+        when(authZService.CheckIfAuthorized(userId)).thenThrow(new UnauthorizedException("You are not authorized to access this resource"));
         Assertions.assertThatThrownBy(() -> userService.getUserById(userId))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(UnauthorizedException.class)
+                .hasMessageContaining("You are not authorized to access this resource");
     }
+
     //updateUser
     //!Needs implement
 

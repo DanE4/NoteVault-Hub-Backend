@@ -39,11 +39,23 @@ public class Post {
         return user.getId();
     }
 
-    public List<UUID> getSubjectsIds() {
+    public List<UUID> getSubjectIds() {
         return subjects == null ? new ArrayList<>() : subjects.stream().map(PostToSubject::getId).toList();
+    }
+
+    public void setSubjectIds(List<UUID> subjectsIds) {
+        this.subjects = subjectsIds == null ? new ArrayList<>() : subjectsIds.stream()
+                .map(id -> PostToSubject.builder().id(id).build())
+                .toList();
     }
 
     public List<UUID> getFilesIds() {
         return files == null ? new ArrayList<>() : files.stream().map(File::getId).toList();
+    }
+
+    public void setFilesIds(List<UUID> filesIds) {
+        this.files = filesIds == null ? new ArrayList<>() : filesIds.stream()
+                .map(id -> File.builder().id(id).build())
+                .toList();
     }
 }
