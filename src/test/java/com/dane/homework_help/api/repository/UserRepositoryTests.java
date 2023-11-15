@@ -75,4 +75,14 @@ public class UserRepositoryTests {
         //Assert
         Assertions.assertThat(userRepository.existsById(users.get(0).getId())).isFalse();
     }
+
+    @Test
+    public void UserRepository_FindByEmail_ShouldReturnError() {
+        //Arrange
+        //initialized from data.sql
+        //Act
+        User foundUser = userRepository.findByEmail("asd");
+        //Assert
+        Assertions.assertThat(foundUser).isNull();
+    }
 }

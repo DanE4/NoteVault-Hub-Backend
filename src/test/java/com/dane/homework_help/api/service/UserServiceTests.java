@@ -6,7 +6,6 @@ import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.exception.UnauthorizedException;
-import com.dane.homework_help.mapper.UserMapper;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.impl.UserServiceImpl;
 import org.assertj.core.api.Assertions;
@@ -17,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,12 +44,6 @@ public class UserServiceTests {
     private List<User> mockedUsers;
     private final UUID userId = UUID.randomUUID();
     private final String jwt = "secretToken";
-    @Mock
-    private UserMapper userMapper = new UserMapper();
-    @Mock
-    private RedisTemplate<String, Object> redisTemplate;
-    @Mock
-    private ValueOperations<String, Object> valueOperations;
     @Mock
     private AuthZService authZService;
 
@@ -142,7 +133,7 @@ public class UserServiceTests {
         // Assert
         Assertions.assertThat(result).isNotNull();
     }
-    
+
     @Test
     public void getUserById_UnauthorizedUser_ShouldReturnUnauthorizedException() {
         when(authZService.CheckIfAuthorized(userId)).thenThrow(new UnauthorizedException("You are not authorized to access this resource"));
