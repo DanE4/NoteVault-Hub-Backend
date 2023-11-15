@@ -25,7 +25,6 @@ public class GroupToUser {
     @ManyToOne
     private User user;
 
-
     @Enumerated(EnumType.STRING)
     private GroupRole role;
 

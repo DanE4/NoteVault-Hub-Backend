@@ -14,7 +14,7 @@ public class PostRepositoryTests {
     public PostRepositoryTests(PostRepository postRepository) {
         this.postRepository = postRepository;
     }
-    
+
     @Test
     public void PostRepository_SaveAll_ShouldSaveAll() {
         //Arrange

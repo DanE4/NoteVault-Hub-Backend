@@ -35,7 +35,7 @@ public class AuthenticationService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Response authenticate(AuthenticationRequest request) {
-        log.info("authenticating");
+        log.info("Authenticating");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),

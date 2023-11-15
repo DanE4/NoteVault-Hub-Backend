@@ -1,6 +1,7 @@
 package com.dane.homework_help.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,9 +15,11 @@ public record SubjectDTO(
         UUID id,
 
         @Schema(description = "name", example = "Calculus 2")
+        @Size(min = 2, max = 30)
         String name,
 
         @Schema(description = "description", example = "Best math class")
+        @Size(min = 2, max = 30)
         String description,
 
         @Schema(hidden = true)

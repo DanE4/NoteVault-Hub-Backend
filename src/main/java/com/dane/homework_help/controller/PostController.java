@@ -20,8 +20,8 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/posts")
 @Tag(name = "Post")
+@RequestMapping("/api/posts")
 public class PostController {
     private final PostService postService;
 

@@ -22,8 +22,8 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/users")
 @Tag(name = "User")
+@RequestMapping("/api/users")
 public class UserController {
 
     //?why do i need to use this? it's just dependency injection, right?

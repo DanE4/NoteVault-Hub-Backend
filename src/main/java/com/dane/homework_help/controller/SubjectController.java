@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @Tag(name = "Subject")
-@RequestMapping("/api/subjects")
 @RequiredArgsConstructor
+@RequestMapping("/api/subjects")
 public class SubjectController {
     private final SubjectServiceImpl subjectService;
     private final SubjectMapper subjectMapper;

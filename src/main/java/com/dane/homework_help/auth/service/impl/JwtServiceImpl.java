@@ -69,14 +69,12 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean validateToken(String jwt, UserDetails userDetails) {
-        log.info("Validating token");
         final String email = extractEmail(jwt);
         /*
         var token = tokenRepository.findByToken(jwt).orElseThrow(() -> new MissingJwtException("Token not found"));
         if (token.isRevoked() || token.isExpired()) {
             throw new InvalidTokenException("Token is invalid");
         }
-
          */
         return email.equals(userDetails.getUsername()) && !isTokenExpired(jwt);
     }
