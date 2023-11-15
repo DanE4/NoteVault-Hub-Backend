@@ -3,6 +3,8 @@ package com.dane.homework_help.controller;
 import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.NotificationDTO;
 import com.dane.homework_help.entity.Notification;
+import com.dane.homework_help.exception.RecordNotFoundException;
+import com.dane.homework_help.exception.UserNotFoundException;
 import com.dane.homework_help.mapper.NotificationMapper;
 import com.dane.homework_help.service.impl.NotificationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,7 +37,6 @@ public class NotificationController {
                                     mediaType = "application/json",
                                     schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Notification.class)
                             )
-
                     ),
                     @ApiResponse(
                             description = "Bad Request",
@@ -62,11 +63,36 @@ public class NotificationController {
                             .data(asd)
                             .build());
 
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.builder().response("User not found").build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().data(e.getMessage()).build());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().response("Error").build());
         }
     }
 
+    @Operation(
+            description = "Get endpoint for notifications",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation =
+                                            NotificationDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
     @GetMapping("/notification/{notification_id}")
     public ResponseEntity<Response> getNotificationById(@PathVariable(value = "notification_id") UUID id) {
         try {
@@ -75,11 +101,36 @@ public class NotificationController {
                             .data(notificationMapper.apply(notificationService.getNotificationById(id)))
                             .build());
 
+        } catch (RecordNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.builder().response("Notification not found").build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().response("Error").build());
         }
     }
 
+    //TODO: This should be a list of notifications
+    @Operation(
+            description = "Get endpoint for notifications",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation =
+                                            NotificationDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
     @GetMapping("/notification/user/{user_id}")
     public ResponseEntity<Response> getAllNotificationsForUser(@PathVariable(value = "user_id") UUID id) {
         try {
@@ -91,8 +142,11 @@ public class NotificationController {
                                     .toList())
                             .build());
 
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.builder().response("User not found").build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().response("Error").build());
         }
     }
 }

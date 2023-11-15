@@ -1,10 +1,12 @@
 package com.dane.homework_help;
 
 import com.dane.homework_help.entity.Post;
+import com.dane.homework_help.entity.PostToSubject;
 import com.dane.homework_help.entity.Subject;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.repository.PostRepository;
+import com.dane.homework_help.repository.PostToSubjectRepository;
 import com.dane.homework_help.repository.SubjectRepository;
 import com.dane.homework_help.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
@@ -12,12 +14,15 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 @RequiredArgsConstructor
 public class Init {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final SubjectRepository subjectRepository;
+    private final PostToSubjectRepository postToSubjectRepository;
 
     @PostConstruct
     @Transactional
@@ -40,17 +45,31 @@ public class Init {
                 .description("Mathematics")
                 .build();
 
-        var post = Post.builder()
+        Post post = Post.builder()
                 .title("Calculus 1")
                 .content("Mathematics")
                 .user(user)
+                .subjects(new ArrayList<>())
                 .build();
+
+        var posttoSubject = PostToSubject.builder()
+                .post(post)
+                .subject(subject)
+                .build();
+        var posttoSubject2 = PostToSubject.builder()
+                .post(post)
+                .subject(subject2)
+                .build();
+        post.getSubjects().add(posttoSubject);
+        post.getSubjects().add(posttoSubject2);
+
 
         userRepository.save(user);
         postRepository.save(post);
         subjectRepository.save(subject);
         subjectRepository.save(subject2);
-
+        postToSubjectRepository.save(posttoSubject);
+        postToSubjectRepository.save(posttoSubject2);
     }
     /*
     INSERT INTO users (id, email, password, role, username, level, points, school, created_at, updated_at)

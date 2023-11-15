@@ -14,5 +14,5 @@ public interface PostService {
 
     PostDTO getPostById(UUID id);
 
-    Response deletePostById(String id);
+    Response deletePostById(UUID id);
 }

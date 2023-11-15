@@ -30,7 +30,7 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post")
-    private List<PostToSubject> subjects;
+    private List<PostToSubject> subjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
     private List<File> files;
@@ -40,7 +40,9 @@ public class Post {
     }
 
     public List<UUID> getSubjectIds() {
-        return subjects == null ? new ArrayList<>() : subjects.stream().map(PostToSubject::getId).toList();
+        return subjects == null ? new ArrayList<>() :
+                subjects.stream().map(postToSubject -> postToSubject.getSubject().getId()
+                ).toList();
     }
 
     public void setSubjectIds(List<UUID> subjectsIds) {
@@ -50,7 +52,8 @@ public class Post {
     }
 
     public List<UUID> getFilesIds() {
-        return files == null ? new ArrayList<>() : files.stream().map(File::getId).toList();
+        return files == null ? new ArrayList<>() :
+                files.stream().map(postToSubject -> postToSubject.getPost().getId()).toList();
     }
 
     public void setFilesIds(List<UUID> filesIds) {

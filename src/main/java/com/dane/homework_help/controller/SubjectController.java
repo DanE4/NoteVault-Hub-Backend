@@ -4,6 +4,7 @@ import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.SubjectDTO;
 import com.dane.homework_help.mapper.SubjectMapper;
 import com.dane.homework_help.service.impl.SubjectServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,31 @@ public class SubjectController {
         return "Hello World";
     }
 
+    @Operation(
+            description = "Creating subjects",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = SubjectDTO.class)
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            description = "Bad Request",
+                            responseCode = "400"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
     @PostMapping
     public ResponseEntity<Response> createSubject(@RequestBody SubjectDTO subjectDTO) {
         try {
@@ -33,7 +59,8 @@ public class SubjectController {
                             .data(subjectMapper.apply(subjectService.createSubject(subjectDTO)))
                             .build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.builder().response("Something went wrong").build());
         }
     }
 }

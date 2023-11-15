@@ -41,7 +41,6 @@ public class AuthenticationController {
 
     @Operation(
             description = "Register endpoint for users",
-            summary = "This is a summary for management get endpoint",
             responses = {
                     @ApiResponse(
                             description = "Success",
@@ -71,7 +70,6 @@ public class AuthenticationController {
 
     @Operation(
             description = "Token refresh endpoint for users (should be used when access token is expired, by client)",
-            summary = "This is a summary for refreshing tokens",
             responses = {
                     @ApiResponse(
                             description = "Success",

@@ -78,8 +78,6 @@ public class PostServiceImpl implements PostService {
 
         Optional.ofNullable(postData.fileIds()).ifPresent(post::setFilesIds);
         Optional.ofNullable(postData.subjectIds()).ifPresent(subjectIds -> {
-            post.setSubjectIds(subjectIds);
-            postToSubjectRepository.deleteAllByPostId(post.getId());
             subjectIds.forEach(subjectId -> {
                 Subject subject = subjectRepository.findById(subjectId)
                         .orElseThrow(() -> new RecordNotFoundException("Subject with id " + subjectId +
@@ -99,24 +97,14 @@ public class PostServiceImpl implements PostService {
     @Override
     @CachePut(value = "post", key = "#id")
     public PostDTO updatePost(UUID id, PostDTO postData) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String email = userDetails.getUsername();
-        //update post in postrepository
-
-        User extractedUser = userRepository.findByEmail(email);
-
+        authZService.CheckIfAuthorized(id);
         Post post = postRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Post with id " + id +
                 " not found"));
-        if (post.getUserId() != extractedUser.getId()) {
-            throw new UnauthorizedException("You are not authorized to access this resource");
-        }
         //only update those what are not null in PostDTO
         Optional.ofNullable(postData.title()).ifPresent(post::setTitle);
         Optional.ofNullable(postData.content()).ifPresent(post::setContent);
-
         Optional.ofNullable(postData.subjectIds()).ifPresent(subjectIds -> {
-            postToSubjectRepository.deleteAllByPostId(post.getId());
+            postToSubjectRepository.deleteAllByPostId(id);
             subjectIds.forEach(subjectId -> {
                 Subject subject = subjectRepository.findById(subjectId)
                         .orElseThrow(() -> new RecordNotFoundException("Subject with id " + subjectId +
@@ -126,9 +114,9 @@ public class PostServiceImpl implements PostService {
                         .subject(subject)
                         .build();
                 postToSubjectRepository.save(postToSubject);
+                post.getSubjects().add(postToSubject);
             });
         });
-
         return postMapper.apply(postRepository.save(post));
     }
 
@@ -150,7 +138,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Response deletePostById(String id) {
-        return null;
+    public Response deletePostById(UUID id) {
+        authZService.CheckIfAuthorized(id);
+        postToSubjectRepository.deleteAllByPostId(id);
+        postRepository.deleteById(id);
+        return Response.builder().data("Post deleted").build();
     }
 }

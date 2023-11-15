@@ -25,11 +25,7 @@ import java.util.UUID;
 @Tag(name = "User")
 @RequestMapping("/api/users")
 public class UserController {
-
-    //?why do i need to use this? it's just dependency injection, right?
-
     private final UserService userService;
-
     private final UserMapper userMapper;
 
     public UserController(UserService userService, UserMapper userMapper) {
@@ -49,12 +45,15 @@ public class UserController {
     }
 
     @Operation(
-            description = "Get endpoint for users",
-            summary = "This is a summary for management get endpoint",
+            description = "Endpoint for getting user by id",
             responses = {
                     @ApiResponse(
                             description = "Success",
-                            responseCode = "200"
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UserDTO.class)
+                            )
                     ),
                     @ApiResponse(
                             description = "Unauthorized / Invalid Token",
@@ -64,23 +63,30 @@ public class UserController {
     )
     @GetMapping("/{user_id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") UUID id, HttpServletRequest request) {
+    public ResponseEntity<Response> getUserById(@PathVariable(value = "user_id") UUID id) {
         try {
             return ResponseEntity.ok()
                     .body(Response.builder().data(userMapper.apply(userService.getUserById(id))).build());
         } catch (UsernameNotFoundException | MissingJwtException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.builder().response("User not found").build());
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Response.builder().response("Unauthorized").build());
         }
     }
 
+    //TODO: need to return a list of users in the example 200 response
     @Operation(
             description = "Endpoint for getting all users",
             responses = {
                     @ApiResponse(
                             description = "Success",
-                            responseCode = "200"
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UserDTO.class)
+                            )
                     ),
                     @ApiResponse(
                             description = "Unauthorized / Invalid Token",
@@ -108,7 +114,11 @@ public class UserController {
             responses = {
                     @ApiResponse(
                             description = "Success",
-                            responseCode = "200"
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UserDTO.class)
+                            )
                     ),
                     @ApiResponse(
                             description = "Unauthorized / Invalid Token",
@@ -120,6 +130,7 @@ public class UserController {
                     )
             }
     )
+
     @PatchMapping("/{user_id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Response> updateUser(@PathVariable(value = "user_id") UUID id,
@@ -127,9 +138,10 @@ public class UserController {
         try {
             return ResponseEntity.ok().body(userService.updateUser(id, user, extractJwtFromReqest(request)));
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Response.builder().response("Unauthorized").build());
         } catch (MissingJwtException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Response.builder().response("Missing JWT").build());
         }
     }
 
@@ -158,9 +170,11 @@ public class UserController {
             userService.deleteUserById(id);
             return ResponseEntity.ok().build();
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Response.builder().response("Unauthorized").build());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.builder().response("User not found").build());
         }
     }
 
