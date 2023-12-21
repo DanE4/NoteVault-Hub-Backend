@@ -20,6 +20,8 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    private String title;
+
     @OneToMany(mappedBy = "chat")
     private List<ChatToUser> users;
 

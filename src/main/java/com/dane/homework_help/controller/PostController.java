@@ -138,6 +138,63 @@ public class PostController {
         }
     }
 
+    //get all posts
+    @Operation(
+            description = "Endpoint for getting all posts",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = PostDTO.class),
+                                    examples = @io.swagger.v3.oas.annotations.media.ExampleObject(
+                                            name = "Post",
+                                            value = """
+                                                    [
+                                                        {
+                                                            "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+                                                            "title": "This is my new post",
+                                                            "content": "lorem ipsum",
+                                                            "userId": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+                                                            "subjectIds": [
+                                                                "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+                                                            ],
+                                                            "fileIds": [
+                                                                "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+                                                            ]
+                                                        }
+                                                    ]
+                                                    """
+                                    )
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public ResponseEntity<Response> getAllPosts(HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok().body(Response.builder().data(postService.getAllPosts()).build());
+        } catch (UnauthorizedException e) {
+            log.error("UnauthorizedException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Response.builder().response("Unauthorized").build());
+        } catch (RecordNotFoundException e) {
+            log.error("RecordNotFoundException: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.builder().response("Post not found").build());
+        }
+    }
+
     @Operation(
             description = "Endpoint for updating posts",
             responses = {

@@ -108,7 +108,29 @@ public class UserServiceTests {
         // Add more assertions to compare the UserDTOs with the mock data
     }
 
+    public static String solution(String message) {
+        String[] splitted = message.split("");
+        Map<String, Integer> map = new HashMap<>();
+        for (int i = 1; i < splitted.length; i++) {
+            if (map.get(splitted[i]) == null) {
+                map.put(splitted[i], 1);
+            } else if (map.get(splitted[i]) != null) {
+                map.replace(splitted[i], map.get(splitted[i]) + 1);
+            }
+            if (map.get(splitted[i]) > 1) {
+                return splitted[i];
+            }
+        }
+        return "";
+    }
 
+    public static boolean solution(String word1, String word2) {
+        char[] chars1 = word1.toCharArray();
+        char[] chars2 = word1.toCharArray();
+        Arrays.sort(chars1);
+        Arrays.sort(chars2);
+        return Arrays.equals(chars1, chars2);
+    }
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getUserById_AuthorizedUser_ShouldReturnUser() {

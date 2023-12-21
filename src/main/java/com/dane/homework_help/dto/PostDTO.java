@@ -21,7 +21,6 @@ public record PostDTO(
         @Schema(hidden = true)
         UUID userId,
         List<UUID> subjectIds,
-        @Schema(hidden = true)
         List<UUID> fileIds)
         implements Serializable {
 }

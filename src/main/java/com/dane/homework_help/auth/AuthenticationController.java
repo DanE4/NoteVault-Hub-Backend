@@ -4,21 +4,24 @@ import com.dane.homework_help.auth.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
-@RestController
+@Controller
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name = "Auth")
@@ -33,10 +36,36 @@ public class AuthenticationController {
     //change email
     //using bcrypt, jwt, and spring security, and mail sending
     private final AuthenticationService authenticationService;
-
+    @GetMapping("/loginForm")
+    public String showLoginForm() {
+        return "loginForm";
+    }
     @PostMapping("/authenticate")
-    public ResponseEntity<Response> login(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request)); //
+    public ResponseEntity<Response> login(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
+
+        log.warn("login");
+        Response authResponse = authenticationService.authenticate(request);
+        Map<String, String> data = (Map<String, String>) authResponse.getData();
+
+        Cookie cookie = new Cookie("token", data.get("accessToken"));
+        cookie.setPath("/"); // Allows frontend to access the cookie
+        cookie.setHttpOnly(true); // Makes the cookie HTTP-only
+        cookie.setMaxAge(24 * 60 * 60); // Sets the cookie to expire in 1 day
+
+        Cookie cookie2 = new Cookie("refreshToken", data.get("refreshToken"));
+        cookie2.setPath("/"); // Allows frontend to access the cookie
+        cookie2.setHttpOnly(true); // Makes the cookie HTTP-only
+        cookie2.setMaxAge(30 * 24 * 60 * 60); // Sets the cookie to expire in 30 days
+        // cookie.setSecure(true); // Uncomment this line if you're using HTTPS
+
+        response.addCookie(cookie);
+        response.addCookie(cookie2);
+        return ResponseEntity.ok(authResponse);
+    }
+
+    @GetMapping("/registerForm")
+    public String showRegisterForm() {
+        return "registerForm";
     }
 
     @Operation(

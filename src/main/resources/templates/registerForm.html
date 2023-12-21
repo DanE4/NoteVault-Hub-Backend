@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Form</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <style>
+        body {
+            background-color: #1a202c;
+        }
+        .form-container {
+            background-color: #2d3748;
+        }
+        label {
+            color: #a0aec0;
+        }
+        button {
+            background-color: #4a5568;
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center">
+
+    <div class="form-container p-8 rounded shadow-md w-96">
+        <h2 class="text-2xl font-semibold mb-4 text-white">Register</h2>
+
+        <form action="/api/auth/register" method="post">
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium">Username:</label>
+                <input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md text-white bg-gray-800" required/>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium">Password:</label>
+                <input type="password" id="password" name="password" class="mt-1 p-2 w-full border rounded-md text-white bg-gray-800" required/>
+            </div>
+
+            <button type="submit" class="text-white p-2 rounded-md">Register</button>
+        </form>
+    </div>
+
+</body>
+</html>

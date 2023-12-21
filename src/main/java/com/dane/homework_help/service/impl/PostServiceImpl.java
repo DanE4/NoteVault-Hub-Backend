@@ -8,7 +8,6 @@ import com.dane.homework_help.entity.PostToSubject;
 import com.dane.homework_help.entity.Subject;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.exception.RecordNotFoundException;
-import com.dane.homework_help.exception.UnauthorizedException;
 import com.dane.homework_help.mapper.PostMapper;
 import com.dane.homework_help.repository.PostRepository;
 import com.dane.homework_help.repository.PostToSubjectRepository;
@@ -24,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -100,7 +100,7 @@ public class PostServiceImpl implements PostService {
         authZService.CheckIfAuthorized(id);
         Post post = postRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Post with id " + id +
                 " not found"));
-        //only update those what are not null in PostDTO
+        //Only updates what are not null in PostDTO
         Optional.ofNullable(postData.title()).ifPresent(post::setTitle);
         Optional.ofNullable(postData.content()).ifPresent(post::setContent);
         Optional.ofNullable(postData.subjectIds()).ifPresent(subjectIds -> {
@@ -123,6 +123,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Cacheable(value = "post", key = "#id")
     public PostDTO getPostById(UUID id) {
+        /*
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
@@ -134,7 +135,15 @@ public class PostServiceImpl implements PostService {
         if (post.getUserId() != extractedUser.getId()) {
             throw new UnauthorizedException("You are not authorized to access this resource");
         }
+        */
+        authZService.CheckIfAuthorized(id);
+        Post post = postRepository.findById(id).orElseThrow(()-> new RecordNotFoundException("Post with "+id+" not " + "found"));
         return postMapper.apply(post);
+    }
+
+    @Override
+    public List<PostDTO> getAllPosts(){
+        return postRepository.findAll().stream().map(postMapper).toList();
     }
 
     @Override

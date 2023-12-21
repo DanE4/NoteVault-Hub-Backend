@@ -56,11 +56,11 @@ public class NotificationController {
     public ResponseEntity<Response> createNotification(@PathVariable(value = "user_id") UUID userId,
                                                        @RequestBody NotificationDTO notification) {
         try {
-            var asd = notificationMapper.apply(notificationService.createNotification(notification,
+            var tokens = notificationMapper.apply(notificationService.createNotification(notification,
                     userId));
             return ResponseEntity.ok()
                     .body(Response.builder()
-                            .data(asd)
+                            .data(tokens)
                             .build());
 
         } catch (UserNotFoundException e) {
