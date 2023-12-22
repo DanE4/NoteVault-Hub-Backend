@@ -23,8 +23,10 @@ straightforward deployment, the system integrates a range of cutting-edge techno
 - [X] **Docker Compose:** Orchestrates the deployment of containers.
 - [ ] **WebSockets:** Implemented for chat functionality; future plans for extending to other features like posts.
 - [X] **Caching:** Implemented across all services for improved performance.
-- [ ] **Validation and Sanitization:** Utilizing `@Valid` for validation, ensuring input integrity, and considering sanitization.
-- [ ] **Rate Limiting:** Implemented to control the rate of incoming requests, preventing abuse or accidental resource overuse.
+- [ ] **Validation and Sanitization:** Utilizing `@Valid` for validation, ensuring input integrity, and considering
+  sanitization.
+- [ ] **Rate Limiting:** Implemented to control the rate of incoming requests, preventing abuse or accidental resource
+  overuse.
 - [ ] **Email Implementation:** Integrated for sending notifications, updates, or verification emails.
 - [ ] **File Management:** Handling file compression, potential encryption, and overall file-related operations.
 - [X] **Unit Testing:** Thorough testing of individual components to ensure their functionality in isolation.
@@ -53,6 +55,7 @@ environment.
    ```
 4. Run the application.
 5. Access the Swagger documentation at `http://localhost:8080/swagger-ui/index.html#/
+
 ### Prerequisites
 
 - Java 21
@@ -60,3 +63,7 @@ environment.
 - PostgreSQL
 - Maven
 - IDE (IntelliJ IDEA recommended)
+
+## Current Database Structure
+
+![](DB_Structure.png)
