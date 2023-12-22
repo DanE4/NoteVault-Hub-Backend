@@ -63,7 +63,7 @@ public class StorageServiceImpl implements StorageService {
         return reader.getFormatName();
     }
 
-    public File compressImage(File inputImage, float quality, Path destinationPath) throws IOException {
+    public void compressImage(File inputImage, float quality, Path destinationPath) throws IOException {
         InputStream inputStream = new FileInputStream(inputImage);
         BufferedImage bufferedImage = ImageIO.read(inputStream);
 
@@ -98,8 +98,6 @@ public class StorageServiceImpl implements StorageService {
         try (FileOutputStream fos = new FileOutputStream(compressedImageFile)) {
             fos.write(byteArrayOutputStream.toByteArray());
         }
-
-        return compressedImageFile;
     }
 
     @Override
@@ -120,17 +118,20 @@ public class StorageServiceImpl implements StorageService {
             }
 
             if (Objects.requireNonNull(file.getContentType()).contains("image")) {
-                log.info("Compressing image...");
+                log.info("Compressing and storing image...");
                 File fileToCompress = convertMultiPartToFile(file);
-                File compressedFile = compressImage(fileToCompress, 0.5f, destination);
-                log.info("Compressed image stored at: " + destination.toString());
+                compressImage(fileToCompress, 0.5f, destination);
             } else {
                 log.info("Storing non-image type file...");
-                // Handle storing non-image file if needed
+                try (InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, destination,
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         } catch (IOException e) {
             throw new StorageException("Failed to store file.", e);
         }
+        log.info("File stored successfully.");
     }
 
 
