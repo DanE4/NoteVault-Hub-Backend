@@ -66,4 +66,4 @@ environment.
 
 ## Current Database Structure
 
-![](DB_Structure.png)
+![](https://github.com/DanE4/NoteVault-Hub-Backend/blob/master/DB_structure.png)
