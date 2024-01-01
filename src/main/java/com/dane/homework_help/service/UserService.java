@@ -1,6 +1,7 @@
 package com.dane.homework_help.service;
 
 import com.dane.homework_help.auth.RegisterRequest;
+import com.dane.homework_help.auth.RegisterResponse;
 import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
@@ -20,4 +21,8 @@ public interface UserService {
     void deleteUserById(UUID id);
 
     List<User> getAllUsers();
+
+    int enableAppUser(String email);
+
+    RegisterResponse registerUser(RegisterRequest request);
 }

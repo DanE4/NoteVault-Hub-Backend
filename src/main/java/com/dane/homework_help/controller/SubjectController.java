@@ -21,9 +21,9 @@ public class SubjectController {
     private final SubjectServiceImpl subjectService;
     private final SubjectMapper subjectMapper;
 
-    @GetMapping
+    @GetMapping("/")
     public String getSubjects() {
-        return "Hello World";
+        return "all subjects";
     }
 
     @Operation(
@@ -51,7 +51,7 @@ public class SubjectController {
                     )
             }
     )
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<Response> createSubject(@RequestBody SubjectDTO subjectDTO) {
         try {
             return ResponseEntity.ok()

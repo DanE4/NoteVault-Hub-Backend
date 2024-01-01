@@ -1,6 +1,7 @@
 package com.dane.homework_help.auth;
 
 import com.dane.homework_help.auth.service.AuthenticationService;
+import com.dane.homework_help.auth.service.RegisterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,10 +37,13 @@ public class AuthenticationController {
     //change email
     //using bcrypt, jwt, and spring security, and mail sending
     private final AuthenticationService authenticationService;
+    private final RegisterService registerService;
+
     @GetMapping("/loginForm")
     public String showLoginForm() {
         return "loginForm";
     }
+
     @PostMapping("/authenticate")
     public ResponseEntity<Response> login(@RequestBody AuthenticationRequest request, HttpServletResponse response) {
 
@@ -84,8 +88,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<Response> register(@RequestBody RegisterRequest request) {
         log.warn("register");
-        var response = authenticationService.register(request);
-        log.warn(response.toString());
+        var response = registerService.register(request);
         if (response.response == null) {
             return ResponseEntity.ok(response);
         } else if (response.response.equals("Email already exists")) {

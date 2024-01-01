@@ -1,24 +1,31 @@
 package com.dane.homework_help.service.impl;
 
 import com.dane.homework_help.auth.RegisterRequest;
+import com.dane.homework_help.auth.RegisterResponse;
 import com.dane.homework_help.auth.Response;
+import com.dane.homework_help.auth.model.ConfirmationToken;
 import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.auth.service.JwtService;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
+import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.exception.UnauthorizedException;
 import com.dane.homework_help.exception.UserNotFoundException;
 import com.dane.homework_help.mapper.UserMapper;
+import com.dane.homework_help.repository.ConfirmationTokenRepository;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.UserService;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +40,9 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final AuthZService authZService;
+    private final PasswordEncoder passwordEncoder;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+
 
     @Override
     public User createUser(RegisterRequest userDTO) {
@@ -109,4 +119,44 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public int enableAppUser(String email) {
+        return userRepository.enableAppUser(email);
+    }
+
+    public RegisterResponse registerUser(RegisterRequest request) {
+        try {
+            if (userRepository.findByEmail(request.email()) != null) {
+                log.warn("Email already exists");
+                return RegisterResponse.builder().error("Email already exists").build();
+            } else if (userRepository.existsByUsername(request.username())) {
+                log.warn("Username already exists");
+                return RegisterResponse.builder().error("Username already exists").build();
+            }
+            
+            var user = User.builder()
+                    .username(request.username())
+                    .email(request.email())
+                    .password(passwordEncoder.encode(request.password()))
+                    .role(Role.USER)
+                    .build();
+            userRepository.save(user);
+
+            ConfirmationToken confirmationToken = new ConfirmationToken(
+                    UUID.randomUUID().toString(),
+                    user,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15));
+            confirmationTokenRepository.save(confirmationToken);
+
+            return new RegisterResponse(
+                    jwtService.generateToken(user),
+                    jwtService.generateRefreshToken(user),
+                    confirmationToken.getToken(),
+                    ""
+            );
+        } catch (ConstraintViolationException e) {
+            log.error(e.getMessage());
+            return RegisterResponse.builder().error("Invalid input").build();
+        }
+    }
 }

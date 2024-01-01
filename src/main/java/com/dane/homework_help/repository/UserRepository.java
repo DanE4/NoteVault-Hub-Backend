@@ -2,8 +2,10 @@ package com.dane.homework_help.repository;
 
 import com.dane.homework_help.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,5 +29,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsById(UUID id);
 
-    String sqlQuery = "SELECT * FROM products WHERE name = '" + "name" + "'";
+    @Transactional
+    @Modifying
+    @Query("UPDATE User a " +
+            "SET a.enabled = TRUE WHERE a.email = ?1")
+    int enableAppUser(String email);
 }

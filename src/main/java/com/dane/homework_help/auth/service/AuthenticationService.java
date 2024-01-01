@@ -1,23 +1,17 @@
 package com.dane.homework_help.auth.service;
 
 import com.dane.homework_help.auth.AuthenticationRequest;
-import com.dane.homework_help.auth.RegisterRequest;
 import com.dane.homework_help.auth.Response;
-import com.dane.homework_help.entity.User;
-import com.dane.homework_help.entity.enums.Role;
-import com.dane.homework_help.repository.TokenRepository;
 import com.dane.homework_help.repository.UserRepository;
+import com.dane.homework_help.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,12 +21,16 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
+    private EmailValidator emailValidator;
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     public Response authenticate(AuthenticationRequest request) {
         log.info("Authenticating");
@@ -54,52 +52,6 @@ public class AuthenticationService {
                 ))
                 .build();
     }
-
-    public Response register(RegisterRequest request) {
-        logger.info("registering");
-        try {
-            if (userRepository.findByEmail(request.email()) != null) {
-                logger.warn("Email already exists");
-                return Response.builder()
-                        .response("Email already exists")
-                        .build();
-            } else if (userRepository.existsByUsername(request.username())) {
-                logger.warn("Username already exists");
-                return Response.builder()
-                        .response("Username already exists")
-                        .build();
-            }
-            //register
-            var user = User.builder()
-                    .username(request.username())
-                    .email(request.email())
-                    .password(passwordEncoder.encode(request.password()))
-                    .role(Role.USER)
-                    .build();
-            try {
-                userRepository.save(user);
-            } catch (ConstraintViolationException e) {
-                logger.error(e.getMessage());
-                return Response.builder()
-                        .response("Invalid input")
-                        .build();
-            }
-            //create and return jwt
-            logger.info("User registered");
-            return Response.builder()
-                    .data(Map.of(
-                            "accessToken", jwtService.generateToken(user),
-                            "refreshToken", jwtService.generateRefreshToken(user)
-                    ))
-                    .build();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return Response.builder()
-                    .response("Internal server error")
-                    .build();
-        }
-    }
-
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String authorizationHeader = request.getHeader("Authorization");

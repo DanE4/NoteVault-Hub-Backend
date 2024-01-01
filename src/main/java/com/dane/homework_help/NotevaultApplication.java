@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 
 @EnableCaching
 @SpringBootApplication
-public class HomeworkApplication {
+public class NotevaultApplication {
     public static void main(String[] args) {
         //kill anything on 8080 port
         ProcessBuilder processBuilder = new ProcessBuilder();
@@ -18,7 +18,7 @@ public class HomeworkApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        SpringApplication.run(HomeworkApplication.class, args);
+        SpringApplication.run(NotevaultApplication.class, args);
     }
 /*
     @Bean

@@ -34,7 +34,6 @@ build/
 
 ### Others ###
 **/.DS_Store
-.env.example
 .env
 /logs/
 /src/main/resources/uploads/

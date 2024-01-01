@@ -68,7 +68,7 @@ public class PostController {
                     )
             }
     )
-    @PostMapping("/post")
+    @PostMapping("/")
     public ResponseEntity<Response> createPost(@RequestBody PostDTO postData) {
         try {
             return ResponseEntity.ok()
@@ -179,7 +179,7 @@ public class PostController {
                     )
             }
     )
-    @GetMapping("/all")
+    @GetMapping("/")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public ResponseEntity<Response> getAllPosts(HttpServletRequest request) {
         try {

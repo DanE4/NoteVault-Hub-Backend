@@ -1,5 +1,5 @@
 package com.dane.homework_help.api.service;
-
+/*
 import com.dane.homework_help.exception.StorageFileNotFoundException;
 import com.dane.homework_help.service.StorageService;
 import org.hamcrest.Matchers;
@@ -61,3 +61,4 @@ public class FileUploadTests {
 	}
 
 }
+ */

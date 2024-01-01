@@ -52,8 +52,8 @@ public class NotificationController {
                     )
             }
     )
-    @PostMapping("/notification/{user_id}")
-    public ResponseEntity<Response> createNotification(@PathVariable(value = "user_id") UUID userId,
+    @PostMapping("/{userId}")
+    public ResponseEntity<Response> createNotification(@PathVariable(value = "userId") UUID userId,
                                                        @RequestBody NotificationDTO notification) {
         try {
             var tokens = notificationMapper.apply(notificationService.createNotification(notification,
@@ -93,7 +93,7 @@ public class NotificationController {
                     )
             }
     )
-    @GetMapping("/notification/{notification_id}")
+    @GetMapping("/{notification_id}")
     public ResponseEntity<Response> getNotificationById(@PathVariable(value = "notification_id") UUID id) {
         try {
             return ResponseEntity.ok()
@@ -131,8 +131,8 @@ public class NotificationController {
                     )
             }
     )
-    @GetMapping("/notification/user/{user_id}")
-    public ResponseEntity<Response> getAllNotificationsForUser(@PathVariable(value = "user_id") UUID id) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Response> getAllNotificationsForUser(@PathVariable(value = "userId") UUID id) {
         try {
             return ResponseEntity.ok()
                     .body(Response.builder()

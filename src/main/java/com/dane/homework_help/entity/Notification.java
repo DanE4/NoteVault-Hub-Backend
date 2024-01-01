@@ -42,6 +42,6 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @Schema(description = "user_id", example = "14a8d1b6-6adf-4c75-b985-7d91f5483c07")
+    @Schema(description = "userId", example = "14a8d1b6-6adf-4c75-b985-7d91f5483c07")
     private User user;
 }

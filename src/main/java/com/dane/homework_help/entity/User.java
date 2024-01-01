@@ -40,6 +40,7 @@ public class User implements UserDetails {
     private int points;
 
     private String school;
+    private Boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
     private Role role;
