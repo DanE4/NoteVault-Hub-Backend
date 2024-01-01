@@ -1,22 +1,41 @@
+name: notevault-hub
 services:
-  db:
+  database:
     container_name: homework_help_db
-    image: postgres:latest
+    image: postgres:16.1-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: homework_help
       PGDATA: /data/postgres
     volumes:
-      - db:/data/postgres
+      - db_vol:/data/postgres
     ports:
-        - 5132:5432
+      - 5132:5432
     networks:
       - homework-network
     restart: unless-stopped
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - RESEND_API_KEY=${RESEND_API_KEY}
+    ports:
+      - "8080:8080"
+    networks:
+      - homework-network
+  cache:
+    image: "redis:7-alpine"
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_vol:/data
+
+    restart: unless-stopped
 
 networks:
-   homework-network:
-        driver: bridge
+  homework-network:
+    driver: bridge
 volumes:
-    db:
+  db_vol:
+  redis_vol:
