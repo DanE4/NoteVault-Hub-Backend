@@ -1,6 +1,6 @@
 package com.dane.homework_help.api.service;
 
-import com.dane.homework_help.auth.RegisterRequest;
+import com.dane.homework_help.auth.request.RegisterRequest;
 import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
@@ -8,7 +8,7 @@ import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.exception.UnauthorizedException;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.impl.UserServiceImpl;
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +25,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 //using mockito
@@ -94,7 +93,7 @@ public class UserServiceTests {
         when(userRepository.save(Mockito.any(User.class))).thenReturn(userWithAdminRole);
         //Assert
         User savedUser = userService.createUser(createRequest);
-        Assertions.assertThat(savedUser).isNotNull();
+        assertEquals(userWithAdminRole, savedUser);
     }
 
     @Test
@@ -131,6 +130,7 @@ public class UserServiceTests {
         Arrays.sort(chars2);
         return Arrays.equals(chars1, chars2);
     }
+
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     public void getUserById_AuthorizedUser_ShouldReturnUser() {
@@ -153,15 +153,15 @@ public class UserServiceTests {
         User result = userService.getUserById(userId);
 
         // Assert
-        Assertions.assertThat(result).isNotNull();
+        assertEquals(userWithAdminRole, result);
     }
 
     @Test
     public void getUserById_UnauthorizedUser_ShouldReturnUnauthorizedException() {
         when(authZService.CheckIfAuthorized(userId)).thenThrow(new UnauthorizedException("You are not authorized to access this resource"));
-        Assertions.assertThatThrownBy(() -> userService.getUserById(userId))
-                .isInstanceOf(UnauthorizedException.class)
-                .hasMessageContaining("You are not authorized to access this resource");
+        // Assert
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> userService.getUserById(userId));
+        Assertions.assertTrue(exception.getMessage().contains("You are not authorized to access this resource"));
     }
 
     //updateUser

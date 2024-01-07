@@ -3,13 +3,12 @@ package com.dane.homework_help.api.repository;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.entity.enums.Role;
 import com.dane.homework_help.repository.UserRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
+import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class UserRepositoryTests {
@@ -32,8 +31,15 @@ public class UserRepositoryTests {
         //Act
         User savedUser = userRepository.save(user);
         //Assert
-        Assertions.assertThat(savedUser).isNotNull();
-        Assertions.assertThat(savedUser.getId()).isNotNull();
+        //Assert
+        assertNotNull(savedUser);
+        assertEquals(user.getEmail(), savedUser.getEmail());
+        assertEquals(user.getPassword(), savedUser.getPassword());
+        assertEquals(user.getUsername(), savedUser.getUsername());
+        assertEquals(user.getLevel(), savedUser.getLevel());
+        assertEquals(user.getPoints(), savedUser.getPoints());
+        assertEquals(user.getSchool(), savedUser.getSchool());
+        assertEquals(user.getRole(), savedUser.getRole());
     }
 
     @Test
@@ -43,7 +49,7 @@ public class UserRepositoryTests {
         //Act
         User foundUser = userRepository.findByEmail("admn4testing1234+random@gmail.com");
         //Assert
-        Assertions.assertThat(foundUser).isNotNull();
+        assertNotNull(foundUser);
     }
 
     //existsByUsername
@@ -53,7 +59,7 @@ public class UserRepositoryTests {
         //Act
         boolean exists = userRepository.existsByUsername("imanadmin");
         //Assert
-        Assertions.assertThat(exists).isTrue();
+        assertTrue(exists);
     }
 
     //findAll
@@ -64,8 +70,8 @@ public class UserRepositoryTests {
         //Act
         var users = userRepository.findAll();
         //Assert
-        Assertions.assertThat(users).isNotNull();
-        Assertions.assertThat(users.size()).isEqualTo(2);
+        assertNotNull(users);
+        assertEquals(2, users.size());
     }
 
     @Test
@@ -73,7 +79,8 @@ public class UserRepositoryTests {
         var users = userRepository.findAll();
         userRepository.deleteById(users.get(0).getId());
         //Assert
-        Assertions.assertThat(userRepository.existsById(users.get(0).getId())).isFalse();
+        assertEquals(1, userRepository.findAll().size());
+        assertFalse(userRepository.existsById(users.get(0).getId()));
     }
 
     @Test
@@ -83,6 +90,6 @@ public class UserRepositoryTests {
         //Act
         User foundUser = userRepository.findByEmail("asd");
         //Assert
-        Assertions.assertThat(foundUser).isNull();
+        assertNull(foundUser);
     }
 }

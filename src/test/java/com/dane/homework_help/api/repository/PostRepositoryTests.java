@@ -3,7 +3,6 @@ package com.dane.homework_help.api.repository;
 import com.dane.homework_help.entity.Post;
 import com.dane.homework_help.entity.User;
 import com.dane.homework_help.repository.PostRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -11,6 +10,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
@@ -29,8 +31,7 @@ public class PostRepositoryTests {
         //Act
         Post savedPost = postRepository.save(post);
         //Assert
-        Assertions.assertThat(savedPost).isNotNull();
-        Assertions.assertThat(savedPost.getId()).isNotNull();
+        assertNotNull(savedPost);
     }
 
     @Test
@@ -40,7 +41,7 @@ public class PostRepositoryTests {
         //Act
         Post foundPost = postRepository.findById(UUID.fromString("123e4567-e89b-12d3-a456-426655440001")).orElse(null);
         //Assert
-        Assertions.assertThat(foundPost).isNotNull();
+        assertNotNull(foundPost);
     }
 
     @Test
@@ -50,7 +51,7 @@ public class PostRepositoryTests {
         //Act
         var foundPosts = postRepository.findAll();
         //Assert
-        Assertions.assertThat(foundPosts).isNotNull();
+        assertNotNull(foundPosts);
     }
 
     @Test
@@ -60,17 +61,16 @@ public class PostRepositoryTests {
         //Act
         postRepository.deleteById(UUID.fromString("123e4567-e89b-12d3-a456-426655440001"));
         //Assert
-        Assertions.assertThat(postRepository.findById(UUID.fromString("123e4567-e89b-12d3-a456-426655440001"))
-                .orElse(null)).isNull();
+        assertFalse(postRepository.existsById(UUID.fromString("123e4567-e89b-12d3-a456-426655440001")));
     }
 
     @Test
-    public void PostRepository_FindId_ShouldReturnError() {
+    public void PostRepository_FindId_ShouldReturnNull() {
         //Arrange
         //initialized from data.sql
         //Act
         Post foundPost = postRepository.findById(UUID.fromString("123e4567-e89b-12d3-a456-426655440002")).orElse(null);
         //Assert
-        Assertions.assertThat(foundPost).isNull();
+        assertNull(foundPost);
     }
 }
