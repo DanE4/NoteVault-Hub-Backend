@@ -1,11 +1,12 @@
-FROM bellsoft/liberica-openjdk-alpine:latest
+# Use a base image that supports multiple architectures
+FROM maven:3.8.4-openjdk-17 AS builder
 WORKDIR /app
-
-RUN apk add --no-cache maven
 COPY pom.xml .
-RUN mvn dependency:go-offline
-
-
 COPY src ./src
+RUN mvn -B -DskipTests clean package
 
-RUN mvn package -DskipTests
+# Use a base image that supports ARM64 architecture
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=builder /app/target/HomeworkHelp-0.0.1-SNAPSHOT.jar app.jar
+CMD ["java", "-jar", "app.jar"]

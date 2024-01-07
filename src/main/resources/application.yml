@@ -7,7 +7,7 @@ spring:
       max-request-size: 100MB
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5132/homework_help
+    url: jdbc:postgresql://database:5432/homework_help
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
