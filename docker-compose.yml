@@ -1,12 +1,12 @@
 name: notevault-hub
 services:
   database:
-    container_name: homework_help_db
+    container_name: notevault-db
     image: postgres:16.1-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: homework_help
+      POSTGRES_DB: notevault
       PGDATA: /data/postgres
     volumes:
       - db_vol:/data/postgres
