@@ -143,7 +143,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.8.1</version> <!-- Replace with the latest version -->
             <scope>test</scope>
         </dependency>
     </dependencies>
