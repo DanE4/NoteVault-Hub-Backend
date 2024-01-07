@@ -72,7 +72,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification updateNotificationStatus(NotificationOrMessageStatus status) {
-        return null;
+    public Notification updateNotificationStatus(UUID id, NotificationOrMessageStatus status) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Notification with id " + id + " not found"));
+        authZService.CheckIfAuthorized(notification.getUser().getId());
+        notification.setStatus(status);
+        notificationRepository.save(notification);
+        return notification;
     }
 }

@@ -34,6 +34,8 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api/auth/**",
+            "/api/register/**",
+            "/api/register/confirm/**",
             //"/api/users/**",
     };
 

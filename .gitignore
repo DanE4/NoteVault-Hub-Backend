@@ -37,3 +37,5 @@ build/
 .env
 /logs/
 /src/main/resources/uploads/
+/local_things/
+local_things/docker-compose.yml

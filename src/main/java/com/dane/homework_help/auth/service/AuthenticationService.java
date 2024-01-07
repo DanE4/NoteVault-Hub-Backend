@@ -1,7 +1,8 @@
 package com.dane.homework_help.auth.service;
 
-import com.dane.homework_help.auth.AuthenticationRequest;
 import com.dane.homework_help.auth.Response;
+import com.dane.homework_help.auth.request.AuthenticationRequest;
+import com.dane.homework_help.exception.EmailNotConfirmedException;
 import com.dane.homework_help.repository.UserRepository;
 import com.dane.homework_help.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,24 +35,42 @@ public class AuthenticationService {
     }
 
     public Response authenticate(AuthenticationRequest request) {
-        log.info("Authenticating");
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        var user = userRepository.findByEmail(request.getEmail());
-        var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        jwtService.saveUserToken(user, accessToken);
-        jwtService.saveUserToken(user, refreshToken);
-        return Response.builder()
-                .data(Map.of(
-                        "accessToken", accessToken,
-                        "refreshToken", refreshToken
-                ))
-                .build();
+        try {
+
+            log.info("Authenticating");
+            var asd = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            var user = userRepository.findByEmail(request.getEmail());
+            var accessToken = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
+            jwtService.saveUserToken(user, accessToken);
+            jwtService.saveUserToken(user, refreshToken);
+            return Response.builder()
+                    .data(Map.of(
+                            "accessToken", accessToken,
+                            "refreshToken", refreshToken
+                    ))
+                    .build();
+        } catch (EmailNotConfirmedException e) {
+            log.error("User's email is not confirmed");
+            return Response.builder()
+                    .response("User's email is not confirmed")
+                    .build();
+        } catch (UsernameNotFoundException e) {
+            log.error("User not found");
+            return Response.builder()
+                    .response("User not found")
+                    .build();
+        } catch (Exception e) {
+            log.error("Error authenticating user: {}", e.getMessage());
+            return Response.builder()
+                    .response("Error authenticating user")
+                    .build();
+        }
     }
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {

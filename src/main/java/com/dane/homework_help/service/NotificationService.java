@@ -16,5 +16,5 @@ public interface NotificationService {
 
     List<Notification> getAllNotificationsForUser(UUID id);
 
-    Notification updateNotificationStatus(NotificationOrMessageStatus status);
+    Notification updateNotificationStatus(UUID id, NotificationOrMessageStatus status);
 }

@@ -3,6 +3,7 @@ package com.dane.homework_help.controller;
 import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.dto.NotificationDTO;
 import com.dane.homework_help.entity.Notification;
+import com.dane.homework_help.entity.enums.NotificationOrMessageStatus;
 import com.dane.homework_help.exception.RecordNotFoundException;
 import com.dane.homework_help.exception.UserNotFoundException;
 import com.dane.homework_help.mapper.NotificationMapper;
@@ -145,6 +146,49 @@ public class NotificationController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Response.builder().response("User not found").build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().response("Error").build());
+        }
+    }
+
+    @Operation(
+            description = "Update endpoint for notifications",
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @io.swagger.v3.oas.annotations.media.Content(
+                                    mediaType = "application/json",
+                                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation =
+                                            NotificationDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            description = "Bad Request",
+                            responseCode = "400"
+                    ),
+                    @ApiResponse(
+                            description = "Unauthorized / Invalid Token",
+                            responseCode = "403"
+                    ),
+                    @ApiResponse(
+                            description = "Not Found",
+                            responseCode = "404"
+                    )
+            }
+    )
+    @PatchMapping(value = "/{notification_id}/{status}")
+    public ResponseEntity<Response> updateNotificationStatus(@PathVariable(value = "notification_id") UUID id,
+                                                             @PathVariable(value = "status") NotificationOrMessageStatus status) {
+        try {
+            return ResponseEntity.ok()
+                    .body(Response.builder()
+                            .data(notificationMapper.apply(notificationService.updateNotificationStatus(id, status)))
+                            .build());
+
+        } catch (RecordNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.builder().response("Notification not found").build());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().response("Error").build());
         }

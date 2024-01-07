@@ -51,6 +51,7 @@ environment.
 3. Run the following command in the terminal:
 
    ```bash
+   docker build -t notevault_backend:latest .
    docker-compose up -d
    ```
 4. Run the application.

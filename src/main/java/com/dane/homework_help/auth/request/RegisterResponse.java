@@ -1,4 +1,4 @@
-package com.dane.homework_help.auth;
+package com.dane.homework_help.auth.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

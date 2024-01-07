@@ -16,7 +16,7 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
-    <logger name="fileLogger" level="WARN" additivity="false">
+    <logger name="fileLogger" level="DEBUG" additivity="false">
         <appender-ref ref="rollingFileAppender"/>
     </logger>
 </configuration>

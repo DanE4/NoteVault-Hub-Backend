@@ -1,9 +1,9 @@
 package com.dane.homework_help.service.impl;
 
-import com.dane.homework_help.auth.RegisterRequest;
-import com.dane.homework_help.auth.RegisterResponse;
 import com.dane.homework_help.auth.Response;
 import com.dane.homework_help.auth.model.ConfirmationToken;
+import com.dane.homework_help.auth.request.RegisterRequest;
+import com.dane.homework_help.auth.request.RegisterResponse;
 import com.dane.homework_help.auth.service.AuthZService;
 import com.dane.homework_help.auth.service.JwtService;
 import com.dane.homework_help.dto.UserDTO;
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
                 log.warn("Username already exists");
                 return RegisterResponse.builder().error("Username already exists").build();
             }
-            
+
             var user = User.builder()
                     .username(request.username())
                     .email(request.email())
@@ -146,7 +146,11 @@ public class UserServiceImpl implements UserService {
                     user,
                     LocalDateTime.now(),
                     LocalDateTime.now().plusMinutes(15));
+
+            log.info("Saving token");
             confirmationTokenRepository.save(confirmationToken);
+            log.info("Token saved");
+            log.info(confirmationToken.toString());
 
             return new RegisterResponse(
                     jwtService.generateToken(user),

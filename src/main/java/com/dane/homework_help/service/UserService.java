@@ -1,8 +1,8 @@
 package com.dane.homework_help.service;
 
-import com.dane.homework_help.auth.RegisterRequest;
-import com.dane.homework_help.auth.RegisterResponse;
 import com.dane.homework_help.auth.Response;
+import com.dane.homework_help.auth.request.RegisterRequest;
+import com.dane.homework_help.auth.request.RegisterResponse;
 import com.dane.homework_help.dto.UserDTO;
 import com.dane.homework_help.entity.User;
 import org.springframework.stereotype.Service;

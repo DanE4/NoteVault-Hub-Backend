@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     User findByUsername(@Param("username") String username);
 
     @Query("SELECT u FROM User u WHERE u.email = :email")
-    User findByEmail(String email);
+    User wfindByEmail(String email);
 
     boolean existsByUsername(String username);
 
@@ -34,4 +34,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("UPDATE User a " +
             "SET a.enabled = TRUE WHERE a.email = ?1")
     int enableAppUser(String email);
+
+    User findByEmail(String email);
 }

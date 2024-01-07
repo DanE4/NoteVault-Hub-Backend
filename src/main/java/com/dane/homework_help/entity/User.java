@@ -3,6 +3,7 @@ package com.dane.homework_help.entity;
 import com.dane.homework_help.entity.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,19 +28,22 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(unique = true)
+    @NotNull
+    @Column(unique = true, nullable = false)
     private String username;
     private String password;
 
-    @Email
+    @Email(message = "Invalid email")
     @Column(unique = true, nullable = false)
     private String email;
 
-    private int level;
-
-    private int points;
+    @Builder.Default
+    private int level = 1;
+    @Builder.Default
+    private int points = 0;
 
     private String school;
+    @Builder.Default
     private Boolean enabled = false;
 
     @Enumerated(EnumType.STRING)
@@ -116,7 +120,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
-
 }
